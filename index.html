@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini-Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { text-align: center; padding: 50px; }
+        button { padding: 20px; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Clicker Game</h1>
+    <button id="clicker">Click me!</button>
+    <p id="score">Score: 0</p>
+
+    <script>
+        Telegram.WebApp.ready();
+
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+        const clickerButton = document.getElementById('clicker');
+
+        clickerButton.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+        });
+
+        Telegram.WebApp.onEvent('mainButtonClicked', () => {
+            Telegram.WebApp.sendData(JSON.stringify({ score }));
+        });
+
+        Telegram.WebApp.MainButton.text = "Send Score";
+        Telegram.WebApp.MainButton.show();
+    </script>
+</body>
+</html>
