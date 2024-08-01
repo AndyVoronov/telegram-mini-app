@@ -11,12 +11,20 @@
     </style>
 </head>
 <body>
+    <h1 id="welcome">Welcome</h1>
     <h1>Clicker Game</h1>
     <button id="clicker">Click me!</button>
     <p id="score">Score: 0</p>
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
 
     <script>
         Telegram.WebApp.ready();
+
+        const initData = Telegram.WebApp.initDataUnsafe;
+        const user = initData.user;
+
+        document.getElementById('welcome').innerText = `Hello, ${user.first_name}`;
 
         let score = 0;
         const scoreDisplay = document.getElementById('score');
@@ -28,11 +36,33 @@
         });
 
         Telegram.WebApp.onEvent('mainButtonClicked', () => {
-            Telegram.WebApp.sendData(JSON.stringify({ score }));
+            fetch('https://your-server-url/submit-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: user.id, score })
+            }).then(response => response.json())
+              .then(data => console.log(data))
+              .catch(error => console.error('Error:', error));
         });
 
         Telegram.WebApp.MainButton.text = "Send Score";
         Telegram.WebApp.MainButton.show();
+
+        async function fetchLeaderboard() {
+            const response = await fetch('https://your-server-url/leaderboard');
+            const leaderboard = await response.json();
+            const leaderboardElement = document.getElementById('leaderboard');
+            leaderboardElement.innerHTML = '';
+            leaderboard.forEach(entry => {
+                const entryElement = document.createElement('p');
+                entryElement.textContent = `${entry.user_id}: ${entry.score}`;
+                leaderboardElement.appendChild(entryElement);
+            });
+        }
+
+        fetchLeaderboard();
     </script>
 </body>
 </html>
